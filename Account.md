@@ -10,6 +10,10 @@
 - [Get the Customer Identification Program Questions](#get-the-customer-identification-program-questions)
 - [Answer Customer Identification Program Questions](#answer-customer-identification-program-questions)
 - [Update User Information](#update-user-information)
+- [Check Ability to Downgrade to Cash Account](#check-ability-to-downgrade-to-cash-account)
+- [Check Ability to Downgrade to Cash Account with a Nice Message](#check-ability-to-downgrade-to-cash-account-with-a-nice-message)
+
+---
 
 Now that you're [logged in](Authentication.md#logging-in), you'll probably want to get to know yourself a little bit. Here we go...
 
@@ -67,6 +71,7 @@ A [paginated](README.md#pagination) list of accounts is returned. Accounts conta
 | account_number                | String   | The alphanumeric string Robinhood uses to identify this account |
 | uncleared_deposits            | Float    | Amount of money in transet from an inconplete ACH deposit |
 | unsettled_funds               | Float    | Amount of money in unsettled funds |
+| nummus_enabled                | Boolean   |  |
 
 **`cash_balances`**
 
@@ -147,7 +152,8 @@ For Normal accounts:
     	"sma_held_for_orders": null,
     	"account_number": "8UD09348",
     	"uncleared_deposits": "0.0000",
-    	"unsettled_funds": "100.0000"
+    	"unsettled_funds": "100.0000",
+	"nummus_enabled": null
 	}]
 }
 ```
@@ -667,6 +673,81 @@ _Untested_
 **Response sample**
 
 _Untested_
+
+# Check Ability to Downgrade to Cash Account
+
+Robinhood will allow you to manually downgrade the default Instant account to a cash account. Before this is possible, you need to verify that you are not using the limited margin provided by Instant or extended Gold margin.
+
+**Method**
+
+| URI                        | HTTP Method | Authentication |
+|----------------------------|-------------|----------------|
+| api.robinhood.com/accounts/{account_id}/can_downgrade_to_cash/ | GET         | *Yes*          |
+
+**Fields**
+
+AFAIK, there are none.
+
+**Request sample**
+
+```
+curl -v https://api.robinhood.com/accounts/8UD09348/can_downgrade_to_cash/ \
+   -H "Accept: application/json" \
+   -H "Authorization: Token a9a7007f890c790a30a0e0f0a7a07a0242354114"
+```
+
+**Response**
+
+| Key                   | Type    | Description |
+|-----------------------|---------|-------------|
+| can_downgrade_to_cash | boolean | If the account is ready to downgrade, this will be true |
+
+**Response sample**
+```
+{
+    "can_downgrade_to_cash": false
+}
+```
+
+# Check Ability to Downgrade to Cash Account with a Nice Message
+
+Robinhood will allow you to manually downgrade the default Instant account to a cash account. Before this is possible, you need to verify that you are not using the limited margin provided by Instant or extended Gold margin.
+
+**Method**
+
+| URI                        | HTTP Method | Authentication |
+|----------------------------|-------------|----------------|
+| api.robinhood.com//midlands/accounts/cash_downgrade_info/ | GET         | *Yes*          |
+
+**Fields**
+
+
+| Parameter      | Type   | Description                                     | Default | Required |
+|----------------|--------|------------------------------------------------|---------|----------|
+| account_number | String | The account id | N/A     | *Yes*    |
+
+**Request sample**
+
+```
+curl -v https://api.robinhood.com//midlands/accounts/cash_downgrade_info/?account_number=8UD09348 \
+   -H "Accept: application/json" \
+   -H "Authorization: Token a9a7007f890c790a30a0e0f0a7a07a0242354114"
+```
+
+**Response**
+
+| Key                   | Type    | Description |
+|-----------------------|---------|-------------|
+| blocked_reason        | String  | If the account isn't ready to downgrade, this tell you why |
+| can_downgrade_to_cash | boolean | If the account is ready to downgrade, this will be true |
+
+**Response sample**
+```
+{
+    "blocked_reason": "You can't turn off instant settlement because you have recent or pending orders. To downgrade, cancel your pending orders and wait three trading days for your recent trades to settle.",
+    "can_downgrade_to_cash": false
+}
+```
 
 # TODO
 
